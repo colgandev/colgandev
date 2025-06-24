@@ -79,3 +79,15 @@ upgrade:
    sudo rm -rf /opt/nvim
    sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
    sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
+
+
+backup_folders := "inbox repos"
+
+backup_home:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    for folder in {{backup_folders}}; do
+        rsync -avzh "$HOME/$folder/" "optimism:$HOME/backups/vividness/$folder/"
+    done
+

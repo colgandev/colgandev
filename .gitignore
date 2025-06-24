@@ -22,3 +22,4 @@ colgandev.db*
 backups/
 .env
 .aider*
+!.aider.conf.yml

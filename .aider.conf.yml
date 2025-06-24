@@ -1,0 +1,18 @@
+cache-prompts: true
+dark-mode: true
+pretty: true
+code-theme: monokai
+auto-commits: false
+watch-files: true
+
+lint-cmd: just lint
+auto-lint: true
+
+test-cmd: just test
+auto-test: true
+
+read:
+  - CONVENTIONS.md
+  - README.md
+
+editor: nvim
