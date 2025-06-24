@@ -1,0 +1,7 @@
+[user]
+	email = david@colgan.dev
+	name = David Colgan
+[core]
+	editor = nvim
+[init]
+	defaultBranch = main

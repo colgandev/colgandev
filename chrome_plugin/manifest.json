@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Colgan Development Chrome Plugin",
+  "version": "1.0",
+  "description": "Colgan Development Chrome Plugin",
+  "host_permissions": ["<all_urls>"],
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": ["tabs", "bookmarks", "scripting", "activeTab"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "save-page": {
+      "suggested_key": {
+        "default": "Ctrl+D"
+      },
+      "description": "Save current page as zettel"
+    },
+    "save-page-and-close": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+D"
+      },
+      "description": "Save current page as zettel and close tab"
+    }
+  }
+}

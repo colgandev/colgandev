@@ -1,0 +1,149 @@
+# If not running interactively, don't do anything
+case $- in
+*i*) ;;
+*) return ;;
+esac
+
+# Enable bash completion
+if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
+
+# Make all terminals feed commands into the same history that is never truncated
+
+# don't put duplicate lines or lines starting with space in the history.
+export HISTCONTROL=ignoreboth
+# append to the history file, don't overwrite it
+shopt -s histappend
+# unlimited bash history size
+export HISTSIZE=
+export HISTFILESIZE=
+export HISTFILE=~/.bash_eternal_history
+export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
+
+# TODO: Replace this with starship.rs
+PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+
+# Aliases
+
+alias ls="eza"
+alias ll="eza -lh"
+alias la="eza -la"
+alias l="eza"
+
+alias ..='cd ..;ls'
+alias ...='cd ../../;ls'
+alias vim='nvim'
+alias vi='nvim'
+alias v='nvim'
+alias rgi='rg --no-ignore'
+
+alias rmpyc='find . -name '*.pyc' -delete'
+
+# git aliases
+alias g="git"
+alias gst="git status"
+alias gl="git log"
+alias gp="git push"
+alias gd="git diff"
+alias gc="git commit -v"
+alias gco="git checkout"
+alias gr="git remote"
+alias gri="git rebase -i"
+alias grc="git rebase --continue"
+alias gra="git rebase --abort"
+alias gb="git branch"
+alias glg="git log --oneline --decorate --color --graph"
+alias ga="git add"
+alias gaa="git add -A"
+alias gm="git merge"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+
+# COMPLETIONS
+eval "$(uv generate-shell-completion bash)"
+eval "$(aider --shell-completions bash)"
+eval "$(just --completions bash)"
+
+# Bind Alt+c to copy current command line to the clipboard
+bind -x '"\ec": slurp_cmd'
+slurp_cmd() {
+    local cmd="${READLINE_LINE}"
+    echo -e "$cmd" | xclip
+    echo -e "$cmd" | xclip -selection clipboard
+
+    notify-send "$cmd"
+}
+
+# Bind Alt+\ to the LLM command completion
+bind -x '"\e\\": __llm_cmdcomp'
+
+__llm_cmdcomp() {
+    # Store the current command line
+    local old_cmd="${READLINE_LINE}"
+    local cursor_pos="${READLINE_POINT}"
+    local result
+
+    # Move to a new line
+    echo
+
+    # Get the LLM completion
+    if result="$(llm cmdcomp "${old_cmd}")"; then
+        # Replace the command line with the result
+        READLINE_LINE="${result}"
+        READLINE_POINT="${#result}"
+        # Move down a line to prevent bash from overwriting output
+        echo
+    else
+        # Restore original command on error
+        READLINE_LINE="${old_cmd}"
+        READLINE_POINT="${cursor_pos}"
+        echo "Command completion failed" >&2
+    fi
+}
+
+# Completions
+
+# justfile
+# starship.rs custom prompts
+#eval "$(starship init bash)"
+
+alias e=". .venv/bin/activate"
+
+# Start in the directory of the current context
+# Get the current directory
+#HOME_DIR=$HOME
+#CURRENT_DIR=$(pwd)
+#CURRENT_CONTEXT="$(cat "$HOME/current_context.txt")"
+#CURRENT_CONTEXT_DIR="$HOME/$CURRENT_CONTEXT"
+
+# Check if current directory is the home directory
+#if [ "$(pwd)" = "$HOME" ]; then
+#
+#    # If we are in the home directory, change to Desktop
+#    #cd "$HOME/$CURRENT_CONTEXT"
+#    #echo "Current Context: $CURRENT_CONTEXT"
+#    cd "$HOME/ctx"
+#fi
+
+# Ensure all context scripts are available
+
+#if [ ! -f /usr/local/bin/rgn ]; then
+#    sudo tee /usr/local/bin/rgn >/dev/null <<'EOF'
+##!/bin/bash
+#
+#cd "/home/dvcolgan/ctx/"
+#just "$@"
+#EOF
+#fi
+
+#function cdx {
+#    cd "~/ctx"
+#    #"$(rgn get current_context.base_dir)"
+#}
+
+bind '"\C-h": backward-kill-word'

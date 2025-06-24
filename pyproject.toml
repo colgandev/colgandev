@@ -1,0 +1,54 @@
+[project]
+name = "colgandev"
+authors = [{ name = "David Colgan", email = "david@colgan.dev" }]
+version = "0.1.0"
+description = "The dotfiles and development tooling for Colgan Development"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "anthropic>=0.54.0",
+    "crispy-bootstrap5>=2025.6",
+    "django>=5.2.3",
+    "django-cors-headers>=4.7.0",
+    "django-crispy-forms>=2.4",
+    "django-environ>=0.12.0",
+    "django-extensions>=4.1",
+    "django-filter>=25.1",
+    "django-htmx>=1.23.0",
+    "django-template-partials>=24.4",
+    "djlint>=1.36.4",
+    "factory-boy>=3.3.3",
+    "fastapi>=0.115.13",
+    "markdown>=3.8",
+    "pillow>=11.2.1",
+    "psycopg[binary,pool]>=3.2.9",
+    "pytest>=8.4.0",
+    "pytest-django>=4.11.1",
+    "pytest-xdist>=3.7.0",
+    "pyyaml>=6.0.2",
+    "requests>=2.32.4",
+    "rich>=14.0.0",
+    "ruff>=0.12.0",
+    "uvicorn>=0.34.3",
+]
+
+
+[tool.djlint]
+max_blank_lines = 1
+max_attribute_length = 1
+line_break_after_multiline_tag = true
+close_void_tags = true
+format_css = true
+profile = "django"
+custom_blocks = "partialdef"
+
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+extend-select = ["I", "S", "INT"]
+
+[tool.pytest.ini_options]
+python_files = "tests.py test_*.py *_tests.py"
+addopts = "--pythonwarnings error --numprocesses auto --fail-on-template-vars --durations=10 --showlocals --ds=backend.settings_test"
