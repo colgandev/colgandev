@@ -1,5 +1,5 @@
 """
-Simple api endpoints that allow me to access the desktop system from Android, iOS, and the Chrome plugin
+Simple api endpoints around my desktop machine that allow me to access the desktop system from Android and iOS via my Tailscale tailnet, and my custom Chrome plugin locally.
 """
 
 import subprocess
