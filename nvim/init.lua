@@ -150,8 +150,6 @@ vim.cmd "colorscheme gruvbox"
 vim.opt.background = "dark"
 --vim.opt.background = 'light'
 
-require "mde"
-
 -- Create an autocmd group for all autocommands
 local augroup = vim.api.nvim_create_augroup("UserAutocommands", { clear = true })
 
