@@ -39,7 +39,7 @@ sync_dotfiles:
         ln -sfv "$script" "$script_name"
     done
 
-lint:
+lint file="":
     uv run ruff format .
     uv run ruff check . --fix
     uv run djlint . --reformat --quiet
@@ -49,7 +49,7 @@ test:
 
 
 serve:
-    uvicorn main:app --host vividness.buri-frog.ts.net --port 5555
+    uvicorn main:app --host 0.0.0.0 --port 5555 --reload
 
 #dark_theme := "Mint-Y-Dark"
 #light_theme := "Mint-Y"

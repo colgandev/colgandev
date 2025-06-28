@@ -7,6 +7,7 @@ can be composed together to build complex UIs while maintaining type safety.
 """
 
 import html
+
 from pydantic import BaseModel, Field
 
 
@@ -369,24 +370,3 @@ class HTML(BaseComponent):
     def render_html(self):
         children_html = "".join(child.render_html() for child in self.children)
         return f'<!doctype html>\n<html lang="{html.escape(self.lang)}">\n{children_html}\n</html>'
-
-
-# Custom Components using render() method
-class Card(BaseComponent):
-    def render(self):
-        return Div(class_="card")(*self.children)
-
-
-class CardHeader(BaseComponent):
-    def render(self):
-        return Div(class_="card-header")(*self.children)
-
-
-class CardBody(BaseComponent):
-    def render(self):
-        return Div(class_="card-body")(*self.children)
-
-
-class CardFooter(BaseComponent):
-    def render(self):
-        return Div(class_="card-footer")(*self.children)

@@ -4,15 +4,34 @@ from bs4 import BeautifulSoup
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse
 
-from html_components import (
-    HTML, Head, Body, Meta, Title, Card, CardHeader, CardBody, CardFooter
-)
+from html_components import HTML, BaseComponent, Body, Div, Head, Meta, Title
 
 app = FastAPI()
 
 
+# Custom Components using render() method
+class Card(BaseComponent):
+    def render(self):
+        return Div(class_="card")(*self.children)
+
+
+class CardHeader(BaseComponent):
+    def render(self):
+        return Div(class_="card-header")(*self.children)
+
+
+class CardBody(BaseComponent):
+    def render(self):
+        return Div(class_="card-body")(*self.children)
+
+
+class CardFooter(BaseComponent):
+    def render(self):
+        return Div(class_="card-footer")(*self.children)
+
+
 def format_html(html_string: str) -> str:
-    soup = BeautifulSoup(html_string, 'html.parser')
+    soup = BeautifulSoup(html_string, "html.parser")
     return soup.prettify()
 
 
