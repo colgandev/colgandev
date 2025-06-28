@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse
 
-from html_components import HTML, BaseComponent, Body, Div, Head, Meta, Title, Link, H1, H2, P, A, Button, Ul, Li
+from html_components import H1, H2, HTML, A, BaseComponent, Body, Button, Div, Head, Li, Link, Meta, P, Title, Ul
 
 app = FastAPI()
 
@@ -33,7 +33,7 @@ class CardFooter(BaseComponent):
 class Layout(BaseComponent):
     page_title: str = "Colgan Development"
     description: str = "David Colgan's development tools and configuration"
-    
+
     def render(self):
         return HTML()(
             Head()(
@@ -51,9 +51,7 @@ class Layout(BaseComponent):
                     rel="stylesheet",
                 ),
             ),
-            Body(class_="bg-light")(
-                *self.children
-            ),
+            Body(class_="bg-light")(*self.children),
         )
 
 
@@ -69,21 +67,21 @@ class Row(BaseComponent):
 
 class Col(BaseComponent):
     size: str = "12"
-    
+
     def render(self):
         return Div(class_=f"col-{self.size}")(*self.children)
 
 
 class Alert(BaseComponent):
     variant: str = "primary"
-    
+
     def render(self):
         return Div(class_=f"alert alert-{self.variant}")(*self.children)
 
 
 class Badge(BaseComponent):
     variant: str = "primary"
-    
+
     def render(self):
         return Div(class_=f"badge bg-{self.variant}")(*self.children)
 
@@ -97,7 +95,7 @@ def format_html(html_string: str) -> str:
 async def root():
     html = Layout(
         page_title="Colgan Development - Home",
-        description="David Colgan's development environment, tools, and configuration"
+        description="David Colgan's development environment, tools, and configuration",
     )(
         Container()(
             Row()(
@@ -111,65 +109,46 @@ async def root():
             Row()(
                 Col(size="md-6")(
                     Card()(
-                        CardHeader()(
-                            H2(class_="h5 mb-0")("🛠️ Development Tools")
-                        ),
+                        CardHeader()(H2(class_="h5 mb-0")("🛠️ Development Tools")),
                         CardBody()(
                             P()("Here are some of the tools and technologies I use:"),
                             Ul(class_="list-unstyled")(
                                 Li(class_="mb-2")(
-                                    Badge(variant="primary")("Python 3.13"),
-                                    " Modern Python with type hints"
+                                    Badge(variant="primary")("Python 3.13"), " Modern Python with type hints"
                                 ),
                                 Li(class_="mb-2")(
-                                    Badge(variant="success")("FastAPI"),
-                                    " High-performance web framework"
+                                    Badge(variant="success")("FastAPI"), " High-performance web framework"
                                 ),
                                 Li(class_="mb-2")(
-                                    Badge(variant="info")("Pydantic"),
-                                    " Data validation with type safety"
+                                    Badge(variant="info")("Pydantic"), " Data validation with type safety"
                                 ),
-                                Li(class_="mb-2")(
-                                    Badge(variant="warning")("Bootstrap 5.3"),
-                                    " Modern CSS framework"
-                                ),
-                            )
-                        )
+                                Li(class_="mb-2")(Badge(variant="warning")("Bootstrap 5.3"), " Modern CSS framework"),
+                            ),
+                        ),
                     )
                 ),
                 Col(size="md-6")(
                     Card()(
-                        CardHeader()(
-                            H2(class_="h5 mb-0")("📁 Quick Links")
-                        ),
+                        CardHeader()(H2(class_="h5 mb-0")("📁 Quick Links")),
                         CardBody()(
                             P()("Explore different parts of my setup:"),
                             Div(class_="d-grid gap-2")(
-                                A(
-                                    href="/~/repos/colgandev",
-                                    class_="btn btn-outline-primary"
-                                )("📂 Dotfiles & Config"),
-                                Button(
-                                    type="button",
-                                    class_="btn btn-outline-secondary",
-                                    disabled=True
-                                )("🔧 Tools (Coming Soon)"),
-                                Button(
-                                    type="button", 
-                                    class_="btn btn-outline-secondary",
-                                    disabled=True
-                                )("📊 Dashboard (Coming Soon)"),
-                            )
-                        )
+                                A(href="/~/repos/colgandev", class_="btn btn-outline-primary")("📂 Dotfiles & Config"),
+                                Button(type="button", class_="btn btn-outline-secondary", disabled=True)(
+                                    "🔧 Tools (Coming Soon)"
+                                ),
+                                Button(type="button", class_="btn btn-outline-secondary", disabled=True)(
+                                    "📊 Dashboard (Coming Soon)"
+                                ),
+                            ),
+                        ),
                     )
-                )
+                ),
             ),
             Row()(
                 Col(size="12")(
                     Card(class_="mt-4")(
-                        CardHeader()(
-                            H2(class_="h5 mb-0")("💡 About This System")
-                        ),
+                        CardHeader()(H2(class_="h5 mb-0")("💡 About This System")),
                         CardBody()(
                             P()(
                                 "This website is built using a custom HTML component system that provides "
@@ -181,11 +160,11 @@ async def root():
                             ),
                             Alert(variant="success")(
                                 "🎯 Type-safe • 🔧 Composable • 🎨 Beautiful syntax • ⚡ Fast development"
-                            )
-                        )
+                            ),
+                        ),
                     )
                 )
-            )
+            ),
         )
     )
     return HTMLResponse(format_html(html.render_html()))
@@ -198,7 +177,7 @@ async def dotfiles():
     """
     html = Layout(
         page_title="Dotfiles & Configuration - Colgan Development",
-        description="David Colgan's dotfiles and development setup"
+        description="David Colgan's dotfiles and development setup",
     )(
         Container()(
             Row()(
@@ -212,9 +191,7 @@ async def dotfiles():
             Row()(
                 Col(size="md-8")(
                     Card()(
-                        CardHeader()(
-                            H2(class_="h5 mb-0")("🛠️ What's Included")
-                        ),
+                        CardHeader()(H2(class_="h5 mb-0")("🛠️ What's Included")),
                         CardBody()(
                             P()("This repository contains my complete development environment setup:"),
                             Ul()(
@@ -228,75 +205,59 @@ async def dotfiles():
                             P()(
                                 "Everything is designed to work together as a cohesive development environment "
                                 "optimized for Python, web development, and system administration."
-                            )
-                        )
+                            ),
+                        ),
                     )
                 ),
                 Col(size="md-4")(
                     Card()(
-                        CardHeader()(
-                            H2(class_="h5 mb-0")("🚀 Quick Setup")
-                        ),
+                        CardHeader()(H2(class_="h5 mb-0")("🚀 Quick Setup")),
                         CardBody()(
                             P()("To install these dotfiles:"),
                             Div(class_="bg-dark text-light p-3 rounded")(
                                 "git clone https://github.com/dvcolgan/colgandev.git",
                                 Div()("cd colgandev"),
-                                Div()("just sync_dotfiles")
+                                Div()("just sync_dotfiles"),
                             ),
                             P(class_="mt-3 small text-muted")(
                                 "This will create symlinks to install all configuration files."
-                            )
-                        )
+                            ),
+                        ),
                     )
-                )
+                ),
             ),
             Row()(
                 Col(size="12")(
                     Card(class_="mt-4")(
-                        CardHeader()(
-                            H2(class_="h5 mb-0")("📋 Available Commands")
-                        ),
+                        CardHeader()(H2(class_="h5 mb-0")("📋 Available Commands")),
                         CardBody()(
                             P()("Use these justfile commands to manage the environment:"),
                             Div(class_="row")(
                                 Div(class_="col-md-6")(
                                     Ul(class_="list-unstyled")(
                                         Li(class_="mb-2")(
-                                            Badge(variant="primary")("sync_dotfiles"),
-                                            " Install all dotfiles"
+                                            Badge(variant="primary")("sync_dotfiles"), " Install all dotfiles"
                                         ),
                                         Li(class_="mb-2")(
-                                            Badge(variant="success")("serve"),
-                                            " Start development server"
+                                            Badge(variant="success")("serve"), " Start development server"
                                         ),
-                                        Li(class_="mb-2")(
-                                            Badge(variant="info")("lint"),
-                                            " Format and lint code"
-                                        ),
+                                        Li(class_="mb-2")(Badge(variant="info")("lint"), " Format and lint code"),
                                     )
                                 ),
                                 Div(class_="col-md-6")(
                                     Ul(class_="list-unstyled")(
+                                        Li(class_="mb-2")(Badge(variant="warning")("test"), " Run test suite"),
+                                        Li(class_="mb-2")(Badge(variant="secondary")("upgrade"), " Update Neovim"),
                                         Li(class_="mb-2")(
-                                            Badge(variant="warning")("test"),
-                                            " Run test suite"
-                                        ),
-                                        Li(class_="mb-2")(
-                                            Badge(variant="secondary")("upgrade"),
-                                            " Update Neovim"
-                                        ),
-                                        Li(class_="mb-2")(
-                                            Badge(variant="dark")("backup_home"),
-                                            " Backup important folders"
+                                            Badge(variant="dark")("backup_home"), " Backup important folders"
                                         ),
                                     )
-                                )
-                            )
-                        )
+                                ),
+                            ),
+                        ),
                     )
                 )
-            )
+            ),
         )
     )
     return HTMLResponse(format_html(html.render_html()))
