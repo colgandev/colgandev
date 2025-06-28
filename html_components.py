@@ -31,11 +31,12 @@ class BaseComponent(BaseModel):
     def __call__(self, *args, **kwargs):
         new_component = self.model_copy()
 
-        # Handle first positional argument as text for convenience
-        if args and len(args) == 1 and isinstance(args[0], str):
-            new_component.children.append(TextComponent(text=args[0]))
-        else:
-            new_component.children.extend(args)
+        # Convert all string arguments to TextComponent objects
+        for arg in args:
+            if isinstance(arg, str):
+                new_component.children.append(TextComponent(text=arg))
+            else:
+                new_component.children.append(arg)
 
         return new_component
 
