@@ -92,6 +92,14 @@ backup_home:
     done
 
 
+# Run aider with a context file
+context file prompt="":
+    uv run python scripts/run_context.py "{{file}}" "{{prompt}}"
+
+# List available context files
+list_contexts:
+    uv run python scripts/run_context.py --list-contexts
+
 # Generate static site by crawling all FastAPI endpoints
 generate_site output_dir="./dist":
     #!/usr/bin/env python3
