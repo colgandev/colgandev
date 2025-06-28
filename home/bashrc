@@ -147,3 +147,5 @@ alias e=". .venv/bin/activate"
 #}
 
 bind '"\C-h": backward-kill-word'
+
+#cd "/home/dvcolgan/system"

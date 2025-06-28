@@ -49,7 +49,7 @@ test:
 
 
 serve:
-    uvicorn main:app --reload --host vividness.buri-frog.ts.net --port 5555
+    uvicorn main:app --host vividness.buri-frog.ts.net --port 5555
 
 #dark_theme := "Mint-Y-Dark"
 #light_theme := "Mint-Y"
