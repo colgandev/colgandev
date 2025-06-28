@@ -52,17 +52,28 @@ def build_aider_command(config: dict, context_prompt: str, additional_prompt: st
 
 @click.group(invoke_without_command=True)
 @click.argument("context_file", type=click.Path(exists=True, path_type=Path), required=False)
-@click.argument("prompt", required=False)
 @click.option("--dry-run", is_flag=True, help="Show the aider command without running it")
 @click.pass_context
-def cli(ctx, context_file, prompt, dry_run):
+def cli(ctx, context_file, dry_run):
     """Run aider with configuration from markdown context files."""
     if ctx.invoked_subcommand is not None:
         return
 
+    # Read prompt from stdin
+    import sys
+    if not sys.stdin.isatty():
+        prompt = sys.stdin.read().strip()
+    else:
+        prompt = ""
+
+    # Use default context file if none provided
     if not context_file:
-        click.echo("Error: context_file is required")
-        ctx.exit(1)
+        default_context = Path("contexts/default.md")
+        if default_context.exists():
+            context_file = default_context
+        else:
+            click.echo("Error: No context file provided and contexts/default.md not found")
+            ctx.exit(1)
 
     # Parse the context file using frontmatter library
     try:

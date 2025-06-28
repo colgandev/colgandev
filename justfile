@@ -76,9 +76,8 @@ generate_site output_dir="./dist":
     uv run python generate_site.py "{{output_dir}}"
 
 # Run inference using aider
-# AI! make this work by receiving Make it make this work by receiving a receiving the prompt from standard inn instead of in the argument slot. have it just be that it has to receive a file and if it doesn't receive a file it should just basically do the default. so don't worry if it doesn't have the first argument and then basically I need you to modify the resolve scripts so that it should receive the prompt in from standard inn. so you'll need to modify the just file and also the resolve python module here
-resolve file prompt="":
-    uv run python resolve.py "{{file}}" "{{prompt}}"
+resolve file="":
+    uv run python resolve.py "{{file}}"
 
 # List available context files
 list_contexts:
