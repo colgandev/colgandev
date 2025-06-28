@@ -182,4 +182,3 @@ serve_static output_dir="./dist":
         print(f"Serving static site at http://localhost:{PORT}")
         print("Press Ctrl+C to stop")
         httpd.serve_forever()
-
