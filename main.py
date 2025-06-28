@@ -42,6 +42,9 @@ async def root():
 
 @app.get("/~/repos/colgandev")
 async def dotfiles():
+    """
+    These are my dotfiles. Feel free to use them!
+    """
     html = HTML()(
         Head()(
             Meta(name="viewport", content="width=device-width, initial-scale=1"),
