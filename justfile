@@ -91,3 +91,107 @@ backup_home:
         rsync -avzh "$HOME/$folder/" "optimism:$HOME/backups/vividness/$folder/"
     done
 
+
+# Generate static site by crawling all FastAPI endpoints
+generate_site output_dir="./dist":
+    #!/usr/bin/env python3
+    import os
+    import sys
+    import requests
+    import time
+    import subprocess
+    from pathlib import Path
+    from urllib.parse import urljoin, urlparse
+    
+    # Add current directory to Python path to import our app
+    sys.path.insert(0, '{{invocation_directory()}}')
+    
+    from main import app
+    
+    # Start the server in background
+    print("Starting FastAPI server...")
+    server_process = subprocess.Popen([
+        "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"
+    ], cwd="{{invocation_directory()}}")
+    
+    # Wait for server to start
+    time.sleep(2)
+    
+    try:
+        base_url = "http://127.0.0.1:8000"
+        output_path = Path("{{output_dir}}")
+        output_path.mkdir(exist_ok=True)
+        
+        # Discover all routes from FastAPI app
+        routes = []
+        for route in app.routes:
+            if hasattr(route, 'path') and hasattr(route, 'methods'):
+                if 'GET' in route.methods:
+                    routes.append(route.path)
+        
+        print(f"Found {len(routes)} routes to crawl:")
+        for route in routes:
+            print(f"  {route}")
+        
+        # Crawl each route
+        for route in routes:
+            try:
+                url = urljoin(base_url, route)
+                print(f"Crawling {url}...")
+                
+                response = requests.get(url)
+                response.raise_for_status()
+                
+                # Create directory structure
+                if route == "/":
+                    file_path = output_path / "index.html"
+                else:
+                    # Convert route to file path
+                    clean_route = route.strip("/")
+                    if clean_route:
+                        route_path = output_path / clean_route
+                        route_path.mkdir(parents=True, exist_ok=True)
+                        file_path = route_path / "index.html"
+                    else:
+                        file_path = output_path / "index.html"
+                
+                # Write the HTML content
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(response.text)
+                
+                print(f"  → {file_path}")
+                
+            except Exception as e:
+                print(f"Error crawling {route}: {e}")
+        
+        print(f"\nStatic site generated in {output_path}")
+        
+    finally:
+        # Clean up server process
+        server_process.terminate()
+        server_process.wait()
+
+
+# Serve the generated static site for testing
+serve_static output_dir="./dist":
+    #!/usr/bin/env python3
+    import http.server
+    import socketserver
+    import os
+    from pathlib import Path
+    
+    output_path = Path("{{output_dir}}")
+    if not output_path.exists():
+        print(f"Output directory {output_path} does not exist. Run 'just generate_site' first.")
+        exit(1)
+    
+    os.chdir(output_path)
+    
+    PORT = 8080
+    Handler = http.server.SimpleHTTPRequestHandler
+    
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        print(f"Serving static site at http://localhost:{PORT}")
+        print("Press Ctrl+C to stop")
+        httpd.serve_forever()
+

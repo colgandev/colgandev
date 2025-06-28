@@ -196,20 +196,108 @@ async def dotfiles():
     """
     These are my dotfiles. Feel free to use them!
     """
-    html = HTML()(
-        Head()(
-            Meta(name="viewport", content="width=device-width, initial-scale=1"),
-            Meta(name="description", content="David Colgan's dotfiles and development setup"),
-            Meta(name="author", content="David Colgan"),
-            Title()("David Colgan Development Setup"),
-        ),
-        Body(class_="body-bg-secondary")(
-            Card()(
-                CardHeader()("Development Configuration"),
-                CardBody()("These are my dotfiles and local development setup."),
-                CardFooter()("Feel free to use them!"),
+    html = Layout(
+        page_title="Dotfiles & Configuration - Colgan Development",
+        description="David Colgan's dotfiles and development setup"
+    )(
+        Container()(
+            Row()(
+                Col(size="12")(
+                    H1(class_="display-5 mb-4")("📂 Dotfiles & Configuration"),
+                    Alert(variant="info")(
+                        "These are my dotfiles and development configuration. Feel free to use them!"
+                    ),
+                )
             ),
-        ),
+            Row()(
+                Col(size="md-8")(
+                    Card()(
+                        CardHeader()(
+                            H2(class_="h5 mb-0")("🛠️ What's Included")
+                        ),
+                        CardBody()(
+                            P()("This repository contains my complete development environment setup:"),
+                            Ul()(
+                                Li()("Neovim configuration with modern plugins"),
+                                Li()("Alacritty terminal configuration"),
+                                Li()("Git configuration and aliases"),
+                                Li()("Bash configuration and prompt"),
+                                Li()("Window manager and desktop settings"),
+                                Li()("Development scripts and utilities"),
+                            ),
+                            P()(
+                                "Everything is designed to work together as a cohesive development environment "
+                                "optimized for Python, web development, and system administration."
+                            )
+                        )
+                    )
+                ),
+                Col(size="md-4")(
+                    Card()(
+                        CardHeader()(
+                            H2(class_="h5 mb-0")("🚀 Quick Setup")
+                        ),
+                        CardBody()(
+                            P()("To install these dotfiles:"),
+                            Div(class_="bg-dark text-light p-3 rounded")(
+                                "git clone https://github.com/dvcolgan/colgandev.git",
+                                Div()("cd colgandev"),
+                                Div()("just sync_dotfiles")
+                            ),
+                            P(class_="mt-3 small text-muted")(
+                                "This will create symlinks to install all configuration files."
+                            )
+                        )
+                    )
+                )
+            ),
+            Row()(
+                Col(size="12")(
+                    Card(class_="mt-4")(
+                        CardHeader()(
+                            H2(class_="h5 mb-0")("📋 Available Commands")
+                        ),
+                        CardBody()(
+                            P()("Use these justfile commands to manage the environment:"),
+                            Div(class_="row")(
+                                Div(class_="col-md-6")(
+                                    Ul(class_="list-unstyled")(
+                                        Li(class_="mb-2")(
+                                            Badge(variant="primary")("sync_dotfiles"),
+                                            " Install all dotfiles"
+                                        ),
+                                        Li(class_="mb-2")(
+                                            Badge(variant="success")("serve"),
+                                            " Start development server"
+                                        ),
+                                        Li(class_="mb-2")(
+                                            Badge(variant="info")("lint"),
+                                            " Format and lint code"
+                                        ),
+                                    )
+                                ),
+                                Div(class_="col-md-6")(
+                                    Ul(class_="list-unstyled")(
+                                        Li(class_="mb-2")(
+                                            Badge(variant="warning")("test"),
+                                            " Run test suite"
+                                        ),
+                                        Li(class_="mb-2")(
+                                            Badge(variant="secondary")("upgrade"),
+                                            " Update Neovim"
+                                        ),
+                                        Li(class_="mb-2")(
+                                            Badge(variant="dark")("backup_home"),
+                                            " Backup important folders"
+                                        ),
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
     )
     return HTMLResponse(format_html(html.render_html()))
 
