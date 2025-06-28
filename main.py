@@ -1,11 +1,17 @@
 import html
 import subprocess
 
+from bs4 import BeautifulSoup
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 app = FastAPI()
+
+
+def format_html(html_string: str) -> str:
+    soup = BeautifulSoup(html_string, 'html.parser')
+    return soup.prettify()
 
 
 @app.get("/")
@@ -412,7 +418,7 @@ async def dotfiles():
             ),
         ),
     )
-    return HTMLResponse(html.render_html())
+    return HTMLResponse(format_html(html.render_html()))
 
 
 @app.post("/clipboard")
