@@ -1,4 +1,5 @@
 # Master justfile for Colgan Development
+# AI These are all actions you can take
 
 # Use bash for the default shell
 set shell := ["bash", "-c"]
@@ -50,26 +51,6 @@ test:
 
 serve:
     uvicorn main:app --host 0.0.0.0 --port 5555 --reload
-
-#dark_theme := "Mint-Y-Dark"
-#light_theme := "Mint-Y"
-#
-#dark_mode_on:
-#    #!/bin/bash
-#    dconf write /org/cinnamon/desktop/interface/gtk-theme "'{{dark_theme}}'"
-#    dconf write /org/cinnamon/desktop/wm/preferences/theme "'{{dark_theme}}'"
-#    dconf write /org/cinnamon/theme/name "'{{dark_theme}}'"
-#    dconf write /org/cinnamon/desktop/interface/icon-theme "'{{dark_theme}}'"
-#    echo "Dark mode enabled"
-#
-#dark_mode_off:
-#    #!/bin/bash
-#    dconf write /org/cinnamon/desktop/interface/gtk-theme "'{{light_theme}}'"
-#    dconf write /org/cinnamon/desktop/wm/preferences/theme "'{{light_theme}}'"
-#    dconf write /org/cinnamon/theme/name "'{{light_theme}}'"
-#    dconf write /org/cinnamon/desktop/interface/icon-theme "'{{light_theme}}'"
-#    echo "Light mode enabled"
-#
 
 upgrade:
    #!/bin/bash
