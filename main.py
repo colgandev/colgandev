@@ -11,80 +11,154 @@ app = FastAPI()
 
 
 class BaseComponent(BaseModel):
+    text: str = ""
     id: str | None = None
-    class_: str | None = None
-
+    class_: str | None = Field(None, alias="class")
     children: list["BaseComponent"] = Field(default_factory=list)
+    tag: str = "div"
+    
+    # Allow arbitrary attributes for HTML attributes
+    model_config = {"extra": "allow"}
 
-    def __init__(self, text: str = ""):
-        # ai? how should this be structured for pydantic?
-        self.text = text
-
-    def __call__(self, *args):
-        self.children.extend(*args)
-        return self
+    def __call__(self, *children, **attrs):
+        # First call sets attributes, second call adds children
+        if children:
+            new_component = self.model_copy()
+            new_component.children.extend(children)
+            return new_component
+        else:
+            # Set attributes
+            for key, value in attrs.items():
+                setattr(self, key, value)
+            return self
 
     def render_html(self):
-        # ai! how do we deal with this?
-        return "???"
+        attrs = []
+        if self.id:
+            attrs.append(f'id="{self.id}"')
+        if self.class_:
+            attrs.append(f'class="{self.class_}"')
+        
+        # Add any extra attributes
+        for key, value in self.__dict__.items():
+            if key not in {"text", "id", "class_", "children", "tag"} and value is not None:
+                attrs.append(f'{key.replace("_", "-")}="{value}"')
+        
+        attrs_str = " " + " ".join(attrs) if attrs else ""
+        
+        if not self.children and not self.text:
+            return f"<{self.tag}{attrs_str} />"
+        
+        children_html = "".join(child.render_html() if hasattr(child, 'render_html') else str(child) for child in self.children)
+        content = self.text + children_html
+        
+        return f"<{self.tag}{attrs_str}>{content}</{self.tag}>"
 
     def render_markdown(self):
-        # ai? how could we implement this somehow?
-        ...
+        # Basic markdown rendering - can be expanded
+        if self.tag == "h1":
+            return f"# {self.text}\n"
+        elif self.tag == "h2":
+            return f"## {self.text}\n"
+        elif self.tag == "p":
+            return f"{self.text}\n\n"
+        else:
+            return self.text
 
 
 class Card(BaseComponent):
-    def render(self):
-        return f"""
-<div class="card">
-    {self.slot}
-</div>
-"""
+    tag: str = "div"
+    
+    def __init__(self, **data):
+        super().__init__(**data)
+        if not self.class_:
+            self.class_ = "card"
 
 
 class CardHeader(BaseComponent):
-    def render(self):
-        return f"""
-<div class="card-header">
-    {self.slot}
-</div>
-"""
+    tag: str = "div"
+    
+    def __init__(self, **data):
+        super().__init__(**data)
+        if not self.class_:
+            self.class_ = "card-header"
+
+
+class CardBody(BaseComponent):
+    tag: str = "div"
+    
+    def __init__(self, **data):
+        super().__init__(**data)
+        if not self.class_:
+            self.class_ = "card-body"
+
+
+class CardFooter(BaseComponent):
+    tag: str = "div"
+    
+    def __init__(self, **data):
+        super().__init__(**data)
+        if not self.class_:
+            self.class_ = "card-footer"
 
 
 class Head(BaseComponent):
-    def render(self): ...
+    tag: str = "head"
 
 
 class Body(BaseComponent):
-    def render(self): ...
+    tag: str = "body"
+
+
+class Meta(BaseComponent):
+    tag: str = "meta"
+    name: str = ""
+    content: str = ""
+    
+    def render_html(self):
+        attrs = []
+        if self.name:
+            attrs.append(f'name="{self.name}"')
+        if self.content:
+            attrs.append(f'content="{self.content}"')
+        attrs_str = " " + " ".join(attrs) if attrs else ""
+        return f"<meta{attrs_str} />"
+
+
+class Title(BaseComponent):
+    tag: str = "title"
+    
+    def __init__(self, text: str = "", **data):
+        super().__init__(text=text, **data)
 
 
 class HTML(BaseComponent):
-    def render(self):
-        return f"""<!doctype html>
-<html lang="{self.lang}">
-    {(child.render() for child in self.children)}
-</html>
-        """
+    tag: str = "html"
+    lang: str = "en"
+    
+    def render_html(self):
+        children_html = "".join(child.render_html() for child in self.children)
+        return f'<!doctype html>\n<html lang="{self.lang}">\n{children_html}\n</html>'
 
 
 @app.get("/~/repos/colgandev")
 async def dotfiles():
     html = HTML()(
         Head()(
-            Meta(name="", content=""),
-            Meta(name="", content=""),
-            Meta(name="", content=""),
-            Title("This is the title"),
+            Meta(name="viewport", content="width=device-width, initial-scale=1"),
+            Meta(name="description", content="David Colgan's dotfiles and development setup"),
+            Meta(name="author", content="David Colgan"),
+            Title("David Colgan Development Setup"),
         ),
-        Body(class_="body-bg-secondary")(),
-        Card()(
-            CardHeader(),
-            CardBody(),
-            CardFooter(),
+        Body(class_="body-bg-secondary")(
+            Card()(
+                CardHeader()("Development Configuration"),
+                CardBody()("These are my dotfiles and local development setup."),
+                CardFooter()("Feel free to use them!"),
+            ),
         ),
     )
-    return HTMLResponse(html)
+    return HTMLResponse(html.render_html())
 
 
 @app.post("/clipboard")
