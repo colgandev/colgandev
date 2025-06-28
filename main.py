@@ -5,9 +5,13 @@ from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
-# AI?
 
 app = FastAPI()
+
+
+@app.get("/")
+async def root():
+    return {"message": "FastAPI server is running"}
 
 
 class BaseComponent(BaseModel):
