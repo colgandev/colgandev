@@ -356,6 +356,24 @@ class Title(BaseComponent):
         return f"<title>{children_html}</title>"
 
 
+class Link(BaseComponent):
+    href: str | None = None
+    rel: str | None = None
+    type: str | None = None
+    tag: str = "link"
+
+    def render_html(self):
+        attrs = []
+        if self.href:
+            attrs.append(f'href="{validate_url(self.href)}"')
+        if self.rel:
+            attrs.append(f'rel="{html.escape(self.rel)}"')
+        if self.type:
+            attrs.append(f'type="{html.escape(self.type)}"')
+        attrs_str = " " + " ".join(attrs) if attrs else ""
+        return f"<link{attrs_str} />"
+
+
 class RawHTML(BaseComponent):
     html: str
 
