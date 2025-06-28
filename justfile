@@ -71,15 +71,15 @@ backup_home:
         rsync -avzh "$HOME/$folder/" "optimism:$HOME/backups/vividness/$folder/"
     done
 
-
-# Run aider with a context file
-context file prompt="":
-    uv run python scripts/run_context.py "{{file}}" "{{prompt}}"
-
-# List available context files
-list_contexts:
-    uv run python scripts/run_context.py --list-contexts
-
 # Generate static site by crawling all FastAPI endpoints
 generate_site output_dir="./dist":
     uv run python generate_site.py "{{output_dir}}"
+
+# Run inference using aider
+# AI! make this work by receiving Make it make this work by receiving a receiving the prompt from standard inn instead of in the argument slot. have it just be that it has to receive a file and if it doesn't receive a file it should just basically do the default. so don't worry if it doesn't have the first argument and then basically I need you to modify the resolve scripts so that it should receive the prompt in from standard inn. so you'll need to modify the just file and also the resolve python module here
+resolve file prompt="":
+    uv run python resolve.py "{{file}}" "{{prompt}}"
+
+# List available context files
+list_contexts:
+    uv run python resolve.py --list-contexts
