@@ -16,7 +16,7 @@ class BaseComponent(BaseModel):
     class_: str | None = Field(None, alias="class")
     children: list["BaseComponent"] = Field(default_factory=list)
     tag: str = "div"
-    
+
     # Allow arbitrary attributes for HTML attributes
     model_config = {"extra": "allow"}
 
@@ -38,20 +38,22 @@ class BaseComponent(BaseModel):
             attrs.append(f'id="{self.id}"')
         if self.class_:
             attrs.append(f'class="{self.class_}"')
-        
+
         # Add any extra attributes
         for key, value in self.__dict__.items():
             if key not in {"text", "id", "class_", "children", "tag"} and value is not None:
                 attrs.append(f'{key.replace("_", "-")}="{value}"')
-        
+
         attrs_str = " " + " ".join(attrs) if attrs else ""
-        
+
         if not self.children and not self.text:
             return f"<{self.tag}{attrs_str} />"
-        
-        children_html = "".join(child.render_html() if hasattr(child, 'render_html') else str(child) for child in self.children)
+
+        children_html = "".join(
+            child.render_html() if hasattr(child, "render_html") else str(child) for child in self.children
+        )
         content = self.text + children_html
-        
+
         return f"<{self.tag}{attrs_str}>{content}</{self.tag}>"
 
     def render_markdown(self):
@@ -66,9 +68,10 @@ class BaseComponent(BaseModel):
             return self.text
 
 
+# AI! okay, so I noticed a couple things. I don't want to have to set the extra allow on model_config. I want all of these things to be strongly typed so there can't be. I don't want the dynamicness of HTML here because I'm basically wanting to make this sort of type checker on top of HTML in some ways and so I need this base component to have like all of the the the most used attributes of HTML and if I ever need another one I can just add it so there's no worry about having it to be too few of them. but you know you would put like data and you would put maybe ID maybe like class and the special_at the end of class you know you could and and so then I also want like other components like input box. I want like input to be a component and so I'm wanting you to like add more components here that would implement basic HTML tags. I'm sure they're wanting to wrap the basic HTML tags at the bottom to be able to kind of like give them powers. so I want like input. I want the a tag so I want you to make like a component that is just capital letter. a and like that's the a tag and then I'm basically wanting to be able to create custom tags that compose other tags and specifically I need you to not change the fact that it was or well, let's just go the whole way here. okay so so something that I want. I want bass component to inherit from Base model which it does I guess yeah? and so like if the for the input component that is like the generic input tag in HTML that one will have like the name field and it'll have like you know placeholder and like things the generic tags don't have. so I want you to have like sort of a taxonomy of tags because I want the attributes to be the attributes that only work for that tag. so I want you to make a tree structure of inheritance so that you can. you can add Fields to something and and have it be a strongly typed way. and I really don't like this super init thing for adding stuff. I don't want it to be that way. I want basically there to be a render function method saying on a component and that render method is similar to like react JS's render method. this is kind of a hyperscript implementation if you will. yeah and I'm just wanting it to like kind of mirror that syntax you. yeah put back in the render functions but instead of having it return strings it should return like these component objects. yeah I'm wanting to make a sort of like non-dynamic react to JS component structure here and so I would like the ergonomics of using this to basically be that their attributes which are just the pidentic model classes like attributes and then there's a render function or method that's sort of like the that's like the children basically if that makes sense. see what you can kind of do with that. I want my components to basically just be that the attributes are the typed pydantic Fields and then I want like some way to say like here's. here's how to render this component and it will basically be a recursive structure and basically it's a react component so I need like the child or the slot that goes into the tag and and so on
 class Card(BaseComponent):
     tag: str = "div"
-    
+
     def __init__(self, **data):
         super().__init__(**data)
         if not self.class_:
@@ -77,7 +80,7 @@ class Card(BaseComponent):
 
 class CardHeader(BaseComponent):
     tag: str = "div"
-    
+
     def __init__(self, **data):
         super().__init__(**data)
         if not self.class_:
@@ -86,7 +89,7 @@ class CardHeader(BaseComponent):
 
 class CardBody(BaseComponent):
     tag: str = "div"
-    
+
     def __init__(self, **data):
         super().__init__(**data)
         if not self.class_:
@@ -95,7 +98,7 @@ class CardBody(BaseComponent):
 
 class CardFooter(BaseComponent):
     tag: str = "div"
-    
+
     def __init__(self, **data):
         super().__init__(**data)
         if not self.class_:
@@ -114,7 +117,7 @@ class Meta(BaseComponent):
     tag: str = "meta"
     name: str = ""
     content: str = ""
-    
+
     def render_html(self):
         attrs = []
         if self.name:
@@ -127,7 +130,7 @@ class Meta(BaseComponent):
 
 class Title(BaseComponent):
     tag: str = "title"
-    
+
     def __init__(self, text: str = "", **data):
         super().__init__(text=text, **data)
 
@@ -135,7 +138,7 @@ class Title(BaseComponent):
 class HTML(BaseComponent):
     tag: str = "html"
     lang: str = "en"
-    
+
     def render_html(self):
         children_html = "".join(child.render_html() for child in self.children)
         return f'<!doctype html>\n<html lang="{self.lang}">\n{children_html}\n</html>'
