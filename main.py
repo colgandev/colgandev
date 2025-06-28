@@ -1,3 +1,4 @@
+import html
 import subprocess
 
 from fastapi import FastAPI, Request, Response
@@ -17,9 +18,15 @@ class BaseComponent(BaseModel):
     children: list["BaseComponent"] = Field(default_factory=list)
     tag: str = "div"
 
-    def __call__(self, *children):
+    def __call__(self, *args, **kwargs):
         new_component = self.model_copy()
-        new_component.children.extend(children)
+        
+        # Handle first positional argument as text for convenience
+        if args and len(args) == 1 and isinstance(args[0], str):
+            new_component.children.append(TextComponent(text=args[0]))
+        else:
+            new_component.children.extend(args)
+            
         return new_component
 
     def render(self) -> "BaseComponent":
@@ -30,15 +37,15 @@ class BaseComponent(BaseModel):
         attrs = []
         
         if rendered.id:
-            attrs.append(f'id="{rendered.id}"')
+            attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
-            attrs.append(f'class="{rendered.class_}"')
+            attrs.append(f'class="{html.escape(rendered.class_)}"')
         if rendered.style:
-            attrs.append(f'style="{rendered.style}"')
+            attrs.append(f'style="{html.escape(rendered.style)}"')
         if rendered.title:
-            attrs.append(f'title="{rendered.title}"')
+            attrs.append(f'title="{html.escape(rendered.title)}"')
         if rendered.data_testid:
-            attrs.append(f'data-testid="{rendered.data_testid}"')
+            attrs.append(f'data-testid="{html.escape(rendered.data_testid)}"')
         if rendered.hidden:
             attrs.append('hidden')
 
@@ -66,7 +73,7 @@ class TextComponent(BaseComponent):
     tag: str = "span"
 
     def render_html(self):
-        return self.text
+        return html.escape(self.text)
 
 
 # Basic HTML Elements
@@ -106,6 +113,13 @@ class H6(BaseComponent):
     tag: str = "h6"
 
 
+def validate_url(url: str) -> str:
+    """Validate URL to prevent XSS via javascript: and other dangerous schemes"""
+    if url.lower().startswith(('javascript:', 'data:', 'vbscript:')):
+        return "#"  # Safe fallback
+    return html.escape(url)
+
+
 # Interactive Elements
 class A(BaseComponent):
     href: str | None = None
@@ -118,15 +132,15 @@ class A(BaseComponent):
         attrs = []
         
         if rendered.id:
-            attrs.append(f'id="{rendered.id}"')
+            attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
-            attrs.append(f'class="{rendered.class_}"')
+            attrs.append(f'class="{html.escape(rendered.class_)}"')
         if rendered.href:
-            attrs.append(f'href="{rendered.href}"')
+            attrs.append(f'href="{validate_url(rendered.href)}"')
         if rendered.target:
-            attrs.append(f'target="{rendered.target}"')
+            attrs.append(f'target="{html.escape(rendered.target)}"')
         if rendered.rel:
-            attrs.append(f'rel="{rendered.rel}"')
+            attrs.append(f'rel="{html.escape(rendered.rel)}"')
 
         attrs_str = " " + " ".join(attrs) if attrs else ""
         children_html = "".join(child.render_html() for child in rendered.children)
@@ -143,11 +157,11 @@ class Button(BaseComponent):
         attrs = []
         
         if rendered.id:
-            attrs.append(f'id="{rendered.id}"')
+            attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
-            attrs.append(f'class="{rendered.class_}"')
+            attrs.append(f'class="{html.escape(rendered.class_)}"')
         if rendered.type:
-            attrs.append(f'type="{rendered.type}"')
+            attrs.append(f'type="{html.escape(rendered.type)}"')
         if rendered.disabled:
             attrs.append('disabled')
 
@@ -171,17 +185,17 @@ class Input(BaseComponent):
         attrs = []
         
         if rendered.id:
-            attrs.append(f'id="{rendered.id}"')
+            attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
-            attrs.append(f'class="{rendered.class_}"')
+            attrs.append(f'class="{html.escape(rendered.class_)}"')
         if rendered.type:
-            attrs.append(f'type="{rendered.type}"')
+            attrs.append(f'type="{html.escape(rendered.type)}"')
         if rendered.name:
-            attrs.append(f'name="{rendered.name}"')
+            attrs.append(f'name="{html.escape(rendered.name)}"')
         if rendered.value:
-            attrs.append(f'value="{rendered.value}"')
+            attrs.append(f'value="{html.escape(rendered.value)}"')
         if rendered.placeholder:
-            attrs.append(f'placeholder="{rendered.placeholder}"')
+            attrs.append(f'placeholder="{html.escape(rendered.placeholder)}"')
         if rendered.required:
             attrs.append('required')
         if rendered.disabled:
@@ -201,13 +215,13 @@ class Form(BaseComponent):
         attrs = []
         
         if rendered.id:
-            attrs.append(f'id="{rendered.id}"')
+            attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
-            attrs.append(f'class="{rendered.class_}"')
+            attrs.append(f'class="{html.escape(rendered.class_)}"')
         if rendered.action:
-            attrs.append(f'action="{rendered.action}"')
+            attrs.append(f'action="{html.escape(rendered.action)}"')
         if rendered.method:
-            attrs.append(f'method="{rendered.method}"')
+            attrs.append(f'method="{html.escape(rendered.method)}"')
 
         attrs_str = " " + " ".join(attrs) if attrs else ""
         children_html = "".join(child.render_html() for child in rendered.children)
@@ -223,11 +237,11 @@ class Label(BaseComponent):
         attrs = []
         
         if rendered.id:
-            attrs.append(f'id="{rendered.id}"')
+            attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
-            attrs.append(f'class="{rendered.class_}"')
+            attrs.append(f'class="{html.escape(rendered.class_)}"')
         if rendered.for_:
-            attrs.append(f'for="{rendered.for_}"')
+            attrs.append(f'for="{html.escape(rendered.for_)}"')
 
         attrs_str = " " + " ".join(attrs) if attrs else ""
         children_html = "".join(child.render_html() for child in rendered.children)
@@ -285,17 +299,17 @@ class Img(BaseComponent):
         attrs = []
         
         if rendered.id:
-            attrs.append(f'id="{rendered.id}"')
+            attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
-            attrs.append(f'class="{rendered.class_}"')
+            attrs.append(f'class="{html.escape(rendered.class_)}"')
         if rendered.src:
-            attrs.append(f'src="{rendered.src}"')
+            attrs.append(f'src="{validate_url(rendered.src)}"')
         if rendered.alt:
-            attrs.append(f'alt="{rendered.alt}"')
+            attrs.append(f'alt="{html.escape(rendered.alt)}"')
         if rendered.width:
-            attrs.append(f'width="{rendered.width}"')
+            attrs.append(f'width="{html.escape(rendered.width)}"')
         if rendered.height:
-            attrs.append(f'height="{rendered.height}"')
+            attrs.append(f'height="{html.escape(rendered.height)}"')
 
         attrs_str = " " + " ".join(attrs) if attrs else ""
         return f"<{rendered.tag}{attrs_str} />"
@@ -349,13 +363,13 @@ class Meta(BaseComponent):
     def render_html(self):
         attrs = []
         if self.name:
-            attrs.append(f'name="{self.name}"')
+            attrs.append(f'name="{html.escape(self.name)}"')
         if self.content:
-            attrs.append(f'content="{self.content}"')
+            attrs.append(f'content="{html.escape(self.content)}"')
         if self.charset:
-            attrs.append(f'charset="{self.charset}"')
+            attrs.append(f'charset="{html.escape(self.charset)}"')
         if self.http_equiv:
-            attrs.append(f'http-equiv="{self.http_equiv}"')
+            attrs.append(f'http-equiv="{html.escape(self.http_equiv)}"')
         attrs_str = " " + " ".join(attrs) if attrs else ""
         return f"<meta{attrs_str} />"
 
@@ -368,13 +382,20 @@ class Title(BaseComponent):
         return f"<title>{children_html}</title>"
 
 
+class RawHTML(BaseComponent):
+    html: str
+    
+    def render_html(self):
+        return self.html
+
+
 class HTML(BaseComponent):
     lang: str = "en"
     tag: str = "html"
 
     def render_html(self):
         children_html = "".join(child.render_html() for child in self.children)
-        return f'<!doctype html>\n<html lang="{self.lang}">\n{children_html}\n</html>'
+        return f'<!doctype html>\n<html lang="{html.escape(self.lang)}">\n{children_html}\n</html>'
 
 
 @app.get("/~/repos/colgandev")
@@ -384,13 +405,13 @@ async def dotfiles():
             Meta(name="viewport", content="width=device-width, initial-scale=1"),
             Meta(name="description", content="David Colgan's dotfiles and development setup"),
             Meta(name="author", content="David Colgan"),
-            Title()(TextComponent(text="David Colgan Development Setup")),
+            Title()("David Colgan Development Setup"),
         ),
         Body(class_="body-bg-secondary")(
             Card()(
-                CardHeader()(TextComponent(text="Development Configuration")),
-                CardBody()(TextComponent(text="These are my dotfiles and local development setup.")),
-                CardFooter()(TextComponent(text="Feel free to use them!")),
+                CardHeader()("Development Configuration"),
+                CardBody()("These are my dotfiles and local development setup."),
+                CardFooter()("Feel free to use them!"),
             ),
         ),
     )
