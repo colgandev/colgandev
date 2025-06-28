@@ -20,13 +20,13 @@ class BaseComponent(BaseModel):
 
     def __call__(self, *args, **kwargs):
         new_component = self.model_copy()
-        
+
         # Handle first positional argument as text for convenience
         if args and len(args) == 1 and isinstance(args[0], str):
             new_component.children.append(TextComponent(text=args[0]))
         else:
             new_component.children.extend(args)
-            
+
         return new_component
 
     def render(self) -> "BaseComponent":
@@ -35,7 +35,7 @@ class BaseComponent(BaseModel):
     def render_html(self):
         rendered = self.render()
         attrs = []
-        
+
         if rendered.id:
             attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
@@ -47,7 +47,7 @@ class BaseComponent(BaseModel):
         if rendered.data_testid:
             attrs.append(f'data-testid="{html.escape(rendered.data_testid)}"')
         if rendered.hidden:
-            attrs.append('hidden')
+            attrs.append("hidden")
 
         attrs_str = " " + " ".join(attrs) if attrs else ""
 
@@ -115,7 +115,7 @@ class H6(BaseComponent):
 
 def validate_url(url: str) -> str:
     """Validate URL to prevent XSS via javascript: and other dangerous schemes"""
-    if url.lower().startswith(('javascript:', 'data:', 'vbscript:')):
+    if url.lower().startswith(("javascript:", "data:", "vbscript:")):
         return "#"  # Safe fallback
     return html.escape(url)
 
@@ -130,7 +130,7 @@ class A(BaseComponent):
     def render_html(self):
         rendered = self.render()
         attrs = []
-        
+
         if rendered.id:
             attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
@@ -155,7 +155,7 @@ class Button(BaseComponent):
     def render_html(self):
         rendered = self.render()
         attrs = []
-        
+
         if rendered.id:
             attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
@@ -163,7 +163,7 @@ class Button(BaseComponent):
         if rendered.type:
             attrs.append(f'type="{html.escape(rendered.type)}"')
         if rendered.disabled:
-            attrs.append('disabled')
+            attrs.append("disabled")
 
         attrs_str = " " + " ".join(attrs) if attrs else ""
         children_html = "".join(child.render_html() for child in rendered.children)
@@ -183,7 +183,7 @@ class Input(BaseComponent):
     def render_html(self):
         rendered = self.render()
         attrs = []
-        
+
         if rendered.id:
             attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
@@ -197,9 +197,9 @@ class Input(BaseComponent):
         if rendered.placeholder:
             attrs.append(f'placeholder="{html.escape(rendered.placeholder)}"')
         if rendered.required:
-            attrs.append('required')
+            attrs.append("required")
         if rendered.disabled:
-            attrs.append('disabled')
+            attrs.append("disabled")
 
         attrs_str = " " + " ".join(attrs) if attrs else ""
         return f"<{rendered.tag}{attrs_str} />"
@@ -213,7 +213,7 @@ class Form(BaseComponent):
     def render_html(self):
         rendered = self.render()
         attrs = []
-        
+
         if rendered.id:
             attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
@@ -235,7 +235,7 @@ class Label(BaseComponent):
     def render_html(self):
         rendered = self.render()
         attrs = []
-        
+
         if rendered.id:
             attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
@@ -297,7 +297,7 @@ class Img(BaseComponent):
     def render_html(self):
         rendered = self.render()
         attrs = []
-        
+
         if rendered.id:
             attrs.append(f'id="{html.escape(rendered.id)}"')
         if rendered.class_:
@@ -318,30 +318,22 @@ class Img(BaseComponent):
 # Custom Components using render() method
 class Card(BaseComponent):
     def render(self):
-        return Div(class_="card")(
-            *self.children
-        )
+        return Div(class_="card")(*self.children)
 
 
 class CardHeader(BaseComponent):
     def render(self):
-        return Div(class_="card-header")(
-            *self.children
-        )
+        return Div(class_="card-header")(*self.children)
 
 
 class CardBody(BaseComponent):
     def render(self):
-        return Div(class_="card-body")(
-            *self.children
-        )
+        return Div(class_="card-body")(*self.children)
 
 
 class CardFooter(BaseComponent):
     def render(self):
-        return Div(class_="card-footer")(
-            *self.children
-        )
+        return Div(class_="card-footer")(*self.children)
 
 
 # Document Structure
@@ -384,7 +376,7 @@ class Title(BaseComponent):
 
 class RawHTML(BaseComponent):
     html: str
-    
+
     def render_html(self):
         return self.html
 
