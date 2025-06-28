@@ -1,5 +1,4 @@
 # Master justfile for Colgan Development
-# AI These are all actions you can take
 
 # Use bash for the default shell
 set shell := ["bash", "-c"]
