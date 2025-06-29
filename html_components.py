@@ -26,6 +26,10 @@ def format_html(html_string: str) -> str:
 
 
 def render(component: "HTMLComponent") -> HTMLResponse:
+    """
+    Render a FastAPI HTMLResponse from the provided component structure.
+    """
+
     return HTMLResponse(
         format_html(
             component.render_html(),
