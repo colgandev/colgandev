@@ -8,6 +8,8 @@ can be composed together to build complex UIs while maintaining type safety.
 
 import html
 
+from bs4 import BeautifulSoup
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 
@@ -18,14 +20,27 @@ def validate_url(url: str) -> str:
     return html.escape(url)
 
 
-class BaseComponent(BaseModel):
+def format_html(html_string: str) -> str:
+    soup = BeautifulSoup(html_string, "html.parser")
+    return soup.prettify()
+
+
+def render(component: "HTMLComponent") -> HTMLResponse:
+    return HTMLResponse(
+        format_html(
+            component.render_html(),
+        ),
+    )
+
+
+class HTMLComponent(BaseModel):
     id: str | None = None
     class_: str | None = Field(None, alias="class")
     style: str | None = None
     title: str | None = None
     data_testid: str | None = Field(None, alias="data-testid")
     hidden: bool | None = None
-    children: list["BaseComponent"] = Field(default_factory=list)
+    children: list["HTMLComponent"] = Field(default_factory=list)
     tag: str = "div"
 
     def __call__(self, *args, **kwargs):
@@ -40,7 +55,7 @@ class BaseComponent(BaseModel):
 
         return new_component
 
-    def render(self) -> "BaseComponent":
+    def render(self) -> "HTMLComponent":
         return self
 
     def render_html(self):
@@ -79,7 +94,7 @@ class BaseComponent(BaseModel):
             return str(self.children[0]) if self.children else ""
 
 
-class TextComponent(BaseComponent):
+class TextComponent(HTMLComponent):
     text: str
     tag: str = "span"
 
@@ -88,44 +103,44 @@ class TextComponent(BaseComponent):
 
 
 # Basic HTML Elements
-class Div(BaseComponent):
+class Div(HTMLComponent):
     tag: str = "div"
 
 
-class Span(BaseComponent):
+class Span(HTMLComponent):
     tag: str = "span"
 
 
-class P(BaseComponent):
+class P(HTMLComponent):
     tag: str = "p"
 
 
-class H1(BaseComponent):
+class H1(HTMLComponent):
     tag: str = "h1"
 
 
-class H2(BaseComponent):
+class H2(HTMLComponent):
     tag: str = "h2"
 
 
-class H3(BaseComponent):
+class H3(HTMLComponent):
     tag: str = "h3"
 
 
-class H4(BaseComponent):
+class H4(HTMLComponent):
     tag: str = "h4"
 
 
-class H5(BaseComponent):
+class H5(HTMLComponent):
     tag: str = "h5"
 
 
-class H6(BaseComponent):
+class H6(HTMLComponent):
     tag: str = "h6"
 
 
 # Interactive Elements
-class A(BaseComponent):
+class A(HTMLComponent):
     href: str | None = None
     target: str | None = None
     rel: str | None = None
@@ -151,7 +166,7 @@ class A(BaseComponent):
         return f"<{rendered.tag}{attrs_str}>{children_html}</{rendered.tag}>"
 
 
-class Button(BaseComponent):
+class Button(HTMLComponent):
     type: str | None = None
     disabled: bool | None = None
     tag: str = "button"
@@ -175,7 +190,7 @@ class Button(BaseComponent):
 
 
 # Form Elements
-class Input(BaseComponent):
+class Input(HTMLComponent):
     type: str | None = None
     name: str | None = None
     value: str | None = None
@@ -209,7 +224,7 @@ class Input(BaseComponent):
         return f"<{rendered.tag}{attrs_str} />"
 
 
-class Form(BaseComponent):
+class Form(HTMLComponent):
     action: str | None = None
     method: str | None = None
     tag: str = "form"
@@ -232,7 +247,7 @@ class Form(BaseComponent):
         return f"<{rendered.tag}{attrs_str}>{children_html}</{rendered.tag}>"
 
 
-class Label(BaseComponent):
+class Label(HTMLComponent):
     for_: str | None = Field(None, alias="for")
     tag: str = "label"
 
@@ -253,45 +268,45 @@ class Label(BaseComponent):
 
 
 # List Elements
-class Ul(BaseComponent):
+class Ul(HTMLComponent):
     tag: str = "ul"
 
 
-class Ol(BaseComponent):
+class Ol(HTMLComponent):
     tag: str = "ol"
 
 
-class Li(BaseComponent):
+class Li(HTMLComponent):
     tag: str = "li"
 
 
 # Table Elements
-class Table(BaseComponent):
+class Table(HTMLComponent):
     tag: str = "table"
 
 
-class Thead(BaseComponent):
+class Thead(HTMLComponent):
     tag: str = "thead"
 
 
-class Tbody(BaseComponent):
+class Tbody(HTMLComponent):
     tag: str = "tbody"
 
 
-class Tr(BaseComponent):
+class Tr(HTMLComponent):
     tag: str = "tr"
 
 
-class Th(BaseComponent):
+class Th(HTMLComponent):
     tag: str = "th"
 
 
-class Td(BaseComponent):
+class Td(HTMLComponent):
     tag: str = "td"
 
 
 # Media Elements
-class Img(BaseComponent):
+class Img(HTMLComponent):
     src: str | None = None
     alt: str | None = None
     width: str | None = None
@@ -320,15 +335,15 @@ class Img(BaseComponent):
 
 
 # Document Structure
-class Head(BaseComponent):
+class Head(HTMLComponent):
     tag: str = "head"
 
 
-class Body(BaseComponent):
+class Body(HTMLComponent):
     tag: str = "body"
 
 
-class Meta(BaseComponent):
+class Meta(HTMLComponent):
     name: str | None = None
     content: str | None = None
     charset: str | None = None
@@ -349,7 +364,7 @@ class Meta(BaseComponent):
         return f"<meta{attrs_str} />"
 
 
-class Title(BaseComponent):
+class Title(HTMLComponent):
     tag: str = "title"
 
     def render_html(self):
@@ -357,7 +372,7 @@ class Title(BaseComponent):
         return f"<title>{children_html}</title>"
 
 
-class Link(BaseComponent):
+class Link(HTMLComponent):
     href: str | None = None
     rel: str | None = None
     type: str | None = None
@@ -375,14 +390,14 @@ class Link(BaseComponent):
         return f"<link{attrs_str} />"
 
 
-class RawHTML(BaseComponent):
+class RawHTML(HTMLComponent):
     html: str
 
     def render_html(self):
         return self.html
 
 
-class HTML(BaseComponent):
+class HTML(HTMLComponent):
     lang: str = "en"
     tag: str = "html"
 

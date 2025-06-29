@@ -61,6 +61,7 @@ def cli(ctx, context_file, dry_run):
 
     # Read prompt from stdin
     import sys
+
     if not sys.stdin.isatty():
         prompt = sys.stdin.read().strip()
     else:

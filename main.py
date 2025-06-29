@@ -1,36 +1,80 @@
+import asyncio
+import logging
 import subprocess
+from contextlib import asynccontextmanager
 
-from bs4 import BeautifulSoup
 from fastapi import FastAPI, Request, Response
-from fastapi.responses import HTMLResponse
 
-from html_components import H1, H2, HTML, A, BaseComponent, Body, Button, Div, Head, Li, Link, Meta, P, Title, Ul
+from html_components import (
+    H1,
+    H2,
+    HTML,
+    A,
+    Body,
+    Button,
+    Div,
+    Head,
+    HTMLComponent,
+    Li,
+    Link,
+    Meta,
+    P,
+    Title,
+    Ul,
+    render,
+)
 
-app = FastAPI()
+logger = logging.getLogger("main")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Start the background task without awaiting it
+    asyncio.create_task(run_refresh_script())
+
+    yield
+
+
+async def run_refresh_script():
+    await asyncio.sleep(0.2)
+
+    process = await asyncio.create_subprocess_exec(
+        "./scripts/refresh.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+    )
+
+    stdout, stderr = await process.communicate()
+
+    if process.returncode != 0:
+        print(f"Script failed with return code {process.returncode}")
+        if stderr:
+            print(f"Error: {stderr.decode()}")
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 # Custom Components using render() method
-class Card(BaseComponent):
+class Card(HTMLComponent):
     def render(self):
         return Div(class_="card")(*self.children)
 
 
-class CardHeader(BaseComponent):
+class CardHeader(HTMLComponent):
     def render(self):
         return Div(class_="card-header")(*self.children)
 
 
-class CardBody(BaseComponent):
+class CardBody(HTMLComponent):
     def render(self):
         return Div(class_="card-body")(*self.children)
 
 
-class CardFooter(BaseComponent):
+class CardFooter(HTMLComponent):
     def render(self):
         return Div(class_="card-footer")(*self.children)
 
 
-class Layout(BaseComponent):
+class Layout(HTMLComponent):
     page_title: str = "Colgan Development"
     description: str = "David Colgan's development tools and configuration"
 
@@ -55,119 +99,119 @@ class Layout(BaseComponent):
         )
 
 
-class Container(BaseComponent):
+class Container(HTMLComponent):
     def render(self):
         return Div(class_="container py-4")(*self.children)
 
 
-class Row(BaseComponent):
+class Row(HTMLComponent):
     def render(self):
         return Div(class_="row")(*self.children)
 
 
-class Col(BaseComponent):
+class Col(HTMLComponent):
     size: str = "12"
 
     def render(self):
         return Div(class_=f"col-{self.size}")(*self.children)
 
 
-class Alert(BaseComponent):
+class Alert(HTMLComponent):
     variant: str = "primary"
 
     def render(self):
         return Div(class_=f"alert alert-{self.variant}")(*self.children)
 
 
-class Badge(BaseComponent):
+class Badge(HTMLComponent):
     variant: str = "primary"
 
     def render(self):
         return Div(class_=f"badge bg-{self.variant}")(*self.children)
 
 
-def format_html(html_string: str) -> str:
-    soup = BeautifulSoup(html_string, "html.parser")
-    return soup.prettify()
-
-
 @app.get("/")
-async def root():
-    html = Layout(
-        page_title="Colgan Development - Home",
-        description="David Colgan's development environment, tools, and configuration",
-    )(
-        Container()(
-            Row()(
-                Col(size="12")(
-                    H1(class_="display-4 mb-4")("🚀 Colgan Development"),
-                    Alert(variant="info")(
-                        "Welcome to my development environment! This is built with FastAPI and custom HTML components."
+async def root(request: Request):
+    return render(
+        Layout(
+            page_title="Colgan Development - Home",
+            description="David Colgan's development environment, tools, and configuration",
+        )(
+            Container()(
+                Row()(
+                    Col(size="12")(
+                        H1(class_="display-4 mb-4")("🚀 Colgan Development"),
+                        Alert(variant="info")(
+                            "Welcome to my development environment! This is built with FastAPI and custom HTML components."
+                        ),
+                    )
+                ),
+                Row()(
+                    Col(size="md-6")(
+                        Card()(
+                            CardHeader()(H2(class_="h5 mb-0")("🛠️ Development Tools")),
+                            CardBody()(
+                                P()("Here are some of the tools and technologies I use:"),
+                                Ul(class_="list-unstyled")(
+                                    Li(class_="mb-2")(
+                                        Badge(variant="primary")("Python 3.13"), " Modern Python with type hints"
+                                    ),
+                                    Li(class_="mb-2")(
+                                        Badge(variant="success")("FastAPI"), " High-performance web framework"
+                                    ),
+                                    Li(class_="mb-2")(
+                                        Badge(variant="info")("Pydantic"), " Data validation with type safety"
+                                    ),
+                                    Li(class_="mb-2")(
+                                        Badge(variant="warning")("Bootstrap 5.3"), " Modern CSS framework"
+                                    ),
+                                ),
+                            ),
+                        )
                     ),
-                )
-            ),
-            Row()(
-                Col(size="md-6")(
-                    Card()(
-                        CardHeader()(H2(class_="h5 mb-0")("🛠️ Development Tools")),
-                        CardBody()(
-                            P()("Here are some of the tools and technologies I use:"),
-                            Ul(class_="list-unstyled")(
-                                Li(class_="mb-2")(
-                                    Badge(variant="primary")("Python 3.13"), " Modern Python with type hints"
+                    Col(size="md-6")(
+                        Card()(
+                            CardHeader()(H2(class_="h5 mb-0")("📁 Quick Links")),
+                            CardBody()(
+                                P()("Explore different parts of my setup:"),
+                                Div(class_="d-grid gap-2")(
+                                    A(href="/~/repos/colgandev", class_="btn btn-outline-primary")(
+                                        "📂 Dotfiles & Config"
+                                    ),
+                                    Button(type="button", class_="btn btn-outline-secondary", disabled=True)(
+                                        "🔧 Tools (Coming Soon)"
+                                    ),
+                                    Button(type="button", class_="btn btn-outline-secondary", disabled=True)(
+                                        "📊 Dashboard (Coming Soon)"
+                                    ),
                                 ),
-                                Li(class_="mb-2")(
-                                    Badge(variant="success")("FastAPI"), " High-performance web framework"
-                                ),
-                                Li(class_="mb-2")(
-                                    Badge(variant="info")("Pydantic"), " Data validation with type safety"
-                                ),
-                                Li(class_="mb-2")(Badge(variant="warning")("Bootstrap 5.3"), " Modern CSS framework"),
                             ),
-                        ),
+                        )
+                    ),
+                ),
+                Row()(
+                    Col(size="12")(
+                        Card(class_="mt-4")(
+                            CardHeader()(H2(class_="h5 mb-0")("💡 About This System")),
+                            CardBody()(
+                                P()(
+                                    "This website is built using a custom HTML component system that provides "
+                                    "type-safe templating directly in Python. No separate template files needed!"
+                                ),
+                                P()(
+                                    "The components are built with Pydantic for validation and use a fluent API "
+                                    "that formats beautifully with Black. It's like JSX but for Python!"
+                                ),
+                                Alert(variant="success")(
+                                    "🎯 Type-safe • 🔧 Composable • 🎨 Beautiful syntax • ⚡ Fast development"
+                                ),
+                            ),
+                        )
                     )
                 ),
-                Col(size="md-6")(
-                    Card()(
-                        CardHeader()(H2(class_="h5 mb-0")("📁 Quick Links")),
-                        CardBody()(
-                            P()("Explore different parts of my setup:"),
-                            Div(class_="d-grid gap-2")(
-                                A(href="/~/repos/colgandev", class_="btn btn-outline-primary")("📂 Dotfiles & Config"),
-                                Button(type="button", class_="btn btn-outline-secondary", disabled=True)(
-                                    "🔧 Tools (Coming Soon)"
-                                ),
-                                Button(type="button", class_="btn btn-outline-secondary", disabled=True)(
-                                    "📊 Dashboard (Coming Soon)"
-                                ),
-                            ),
-                        ),
-                    )
-                ),
-            ),
-            Row()(
-                Col(size="12")(
-                    Card(class_="mt-4")(
-                        CardHeader()(H2(class_="h5 mb-0")("💡 About This System")),
-                        CardBody()(
-                            P()(
-                                "This website is built using a custom HTML component system that provides "
-                                "type-safe templating directly in Python. No separate template files needed!"
-                            ),
-                            P()(
-                                "The components are built with Pydantic for validation and use a fluent API "
-                                "that formats beautifully with Black. It's like JSX but for Python!"
-                            ),
-                            Alert(variant="success")(
-                                "🎯 Type-safe • 🔧 Composable • 🎨 Beautiful syntax • ⚡ Fast development"
-                            ),
-                        ),
-                    )
-                )
-            ),
+            )
         )
     )
-    return HTMLResponse(format_html(html.render_html()))
 
 
 @app.get("/~/repos/colgandev")
@@ -175,92 +219,113 @@ async def dotfiles():
     """
     These are my dotfiles. Feel free to use them!
     """
-    html = Layout(
-        page_title="Dotfiles & Configuration - Colgan Development",
-        description="David Colgan's dotfiles and development setup",
-    )(
-        Container()(
-            Row()(
-                Col(size="12")(
-                    H1(class_="display-5 mb-4")("📂 Dotfiles & Configuration"),
-                    Alert(variant="info")(
-                        "These are my dotfiles and development configuration. Feel free to use them!"
+    return render(
+        Layout(
+            page_title="Dotfiles & Configuration - Colgan Development",
+            description="David Colgan's dotfiles and development setup",
+        )(
+            Container()(
+                Row()(
+                    Col(size="12")(
+                        H1(class_="display-5 mb-4")("📂 Dotfiles & Configuration"),
+                        Alert(variant="info")(
+                            "These are my dotfiles and development configuration. Feel free to use them!"
+                        ),
+                    )
+                ),
+                Row()(
+                    Col(size="md-8")(
+                        Card()(
+                            CardHeader()(H2(class_="h5 mb-0")("🛠️ What's Included")),
+                            CardBody()(
+                                P()("This repository contains my complete development environment setup:"),
+                                Ul()(
+                                    Li()("Neovim configuration with modern plugins"),
+                                    Li()("Alacritty terminal configuration"),
+                                    Li()("Git configuration and aliases"),
+                                    Li()("Bash configuration and prompt"),
+                                    Li()("Window manager and desktop settings"),
+                                    Li()("Development scripts and utilities"),
+                                ),
+                                P()(
+                                    "Everything is designed to work together as a cohesive development environment "
+                                    "optimized for Python, web development, and system administration."
+                                ),
+                            ),
+                        )
                     ),
-                )
-            ),
-            Row()(
-                Col(size="md-8")(
-                    Card()(
-                        CardHeader()(H2(class_="h5 mb-0")("🛠️ What's Included")),
-                        CardBody()(
-                            P()("This repository contains my complete development environment setup:"),
-                            Ul()(
-                                Li()("Neovim configuration with modern plugins"),
-                                Li()("Alacritty terminal configuration"),
-                                Li()("Git configuration and aliases"),
-                                Li()("Bash configuration and prompt"),
-                                Li()("Window manager and desktop settings"),
-                                Li()("Development scripts and utilities"),
-                            ),
-                            P()(
-                                "Everything is designed to work together as a cohesive development environment "
-                                "optimized for Python, web development, and system administration."
-                            ),
-                        ),
-                    )
-                ),
-                Col(size="md-4")(
-                    Card()(
-                        CardHeader()(H2(class_="h5 mb-0")("🚀 Quick Setup")),
-                        CardBody()(
-                            P()("To install these dotfiles:"),
-                            Div(class_="bg-dark text-light p-3 rounded")(
-                                "git clone https://github.com/dvcolgan/colgandev.git",
-                                Div()("cd colgandev"),
-                                Div()("just sync_dotfiles"),
-                            ),
-                            P(class_="mt-3 small text-muted")(
-                                "This will create symlinks to install all configuration files."
-                            ),
-                        ),
-                    )
-                ),
-            ),
-            Row()(
-                Col(size="12")(
-                    Card(class_="mt-4")(
-                        CardHeader()(H2(class_="h5 mb-0")("📋 Available Commands")),
-                        CardBody()(
-                            P()("Use these justfile commands to manage the environment:"),
-                            Div(class_="row")(
-                                Div(class_="col-md-6")(
-                                    Ul(class_="list-unstyled")(
-                                        Li(class_="mb-2")(
-                                            Badge(variant="primary")("sync_dotfiles"), " Install all dotfiles"
-                                        ),
-                                        Li(class_="mb-2")(
-                                            Badge(variant="success")("serve"), " Start development server"
-                                        ),
-                                        Li(class_="mb-2")(Badge(variant="info")("lint"), " Format and lint code"),
-                                    )
-                                ),
-                                Div(class_="col-md-6")(
-                                    Ul(class_="list-unstyled")(
-                                        Li(class_="mb-2")(Badge(variant="warning")("test"), " Run test suite"),
-                                        Li(class_="mb-2")(Badge(variant="secondary")("upgrade"), " Update Neovim"),
-                                        Li(class_="mb-2")(
-                                            Badge(variant="dark")("backup_home"), " Backup important folders"
-                                        ),
-                                    )
+                    Col(size="md-4")(
+                        Card()(
+                            CardHeader()(
+                                H2(class_="h5 mb-0")(
+                                    "🚀 Quick Setup",
                                 ),
                             ),
-                        ),
+                            CardBody()(
+                                P()("To install these dotfiles:"),
+                                Div(class_="bg-dark text-light p-3 rounded")(
+                                    "git clone https://github.com/dvcolgan/colgandev.git",
+                                    Div()(
+                                        "cd colgandev",
+                                    ),
+                                    Div()(
+                                        "just sync_dotfiles",
+                                    ),
+                                ),
+                                P(class_="mt-3 small text-muted")(
+                                    "This will create symlinks to install all configuration files."
+                                ),
+                            ),
+                        )
+                    ),
+                ),
+                Row()(
+                    Col(size="12")(
+                        Card(class_="mt-4")(
+                            CardHeader()(
+                                H2(class_="h5 mb-0")("📋 Available Commands"),
+                            ),
+                            CardBody()(
+                                P()("Use these justfile commands to manage the environment:"),
+                                Div(class_="row")(
+                                    Div(class_="col-md-6")(
+                                        Ul(class_="list-unstyled")(
+                                            Li(class_="mb-2")(
+                                                Badge(variant="primary")("sync_dotfiles"), " Install all dotfiles"
+                                            ),
+                                            Li(class_="mb-2")(
+                                                Badge(variant="success")("serve"), " Start development server"
+                                            ),
+                                            Li(class_="mb-2")(
+                                                Badge(variant="info")("lint"),
+                                                " Format and lint code",
+                                            ),
+                                        ),
+                                    ),
+                                    Div(class_="col-md-6")(
+                                        Ul(class_="list-unstyled")(
+                                            Li(class_="mb-2")(
+                                                Badge(variant="warning")("test"),
+                                                " Run test suite",
+                                            ),
+                                            Li(class_="mb-2")(
+                                                Badge(variant="secondary")("upgrade"),
+                                                " Update Neovim",
+                                            ),
+                                            Li(class_="mb-2")(
+                                                Badge(variant="dark")("backup_home"),
+                                                " Backup important folders",
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        )
                     )
-                )
-            ),
+                ),
+            )
         )
     )
-    return HTMLResponse(format_html(html.render_html()))
 
 
 @app.post("/clipboard")

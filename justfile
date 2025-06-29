@@ -77,6 +77,7 @@ generate_site output_dir="./dist":
 
 # Run inference using aider
 resolve file="":
+    notify-send "Running resolve"
     uv run python resolve.py "{{file}}"
 
 # List available context files
