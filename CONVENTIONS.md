@@ -10,7 +10,9 @@ Use modern type annotations. Do not use the `typing` module unless you have to. 
 
 Do not write docstrings except at the top of modules.
 All modules should have a docstring.
-Ensure that module docstrings are dense and useful. Do not simply restate the methods and the code, but rather explain what it does at a high level, as context for the developer.
+
+Ensure that module docstrings are dense and useful. Do not simply restate the methods and the code, but rather explain what it does at a high level, as context for the developer. Always ensure that the docstring is updated to reflect changes you make to the code.
+
 Do not write function docstrings, do not write module docstrings, do not write class docstrings.
 
 Do not write comments unless they specifically call attention to something that the code does not communicate itself. Otherwise do not write comments that simply restate what the code is doing.

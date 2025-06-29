@@ -1,19 +1,13 @@
 ---
-# Aider configuration for authentication feature development
+title: The Inner Loop
 file:
   - main.py
   - html_components.py
-
 read:
   - README.md
   - CONVENTIONS.md
   - pyproject.toml
-
-model: claude-3-5-sonnet-20241022
-cache-prompts: true
-auto-commits: false
-pretty: true
-dark-mode: true
+  - 
 ---
 
 # Authentication Feature Development
