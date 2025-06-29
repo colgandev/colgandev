@@ -48,16 +48,14 @@ class Component(BaseModel):
     tag: str = "div"
 
     def __call__(self, *args, **kwargs):
-        new_component = self.model_copy()
-
         # Convert all string arguments to TextComponent objects
         for arg in args:
             if isinstance(arg, str):
-                new_component.children.append(TextComponent(text=arg))
+                self.children.append(TextComponent(text=arg))
             else:
-                new_component.children.append(arg)
+                self.children.append(arg)
 
-        return new_component
+        return self
 
     def render(self) -> "Component":
         return self
