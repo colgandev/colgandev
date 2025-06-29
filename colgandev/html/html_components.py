@@ -25,7 +25,7 @@ def format_html(html_string: str) -> str:
     return soup.prettify()
 
 
-def render(component: "HTMLComponent") -> HTMLResponse:
+def render(component: "Component") -> HTMLResponse:
     """
     Render a FastAPI HTMLResponse from the provided component structure.
     """
@@ -37,14 +37,14 @@ def render(component: "HTMLComponent") -> HTMLResponse:
     )
 
 
-class HTMLComponent(BaseModel):
+class Component(BaseModel):
     id: str | None = None
     class_: str | None = Field(None, alias="class")
     style: str | None = None
     title: str | None = None
     data_testid: str | None = Field(None, alias="data-testid")
     hidden: bool | None = None
-    children: list["HTMLComponent"] = Field(default_factory=list)
+    children: list["Component"] = Field(default_factory=list)
     tag: str = "div"
 
     def __call__(self, *args, **kwargs):
@@ -59,7 +59,7 @@ class HTMLComponent(BaseModel):
 
         return new_component
 
-    def render(self) -> "HTMLComponent":
+    def render(self) -> "Component":
         return self
 
     def render_html(self):
@@ -98,7 +98,7 @@ class HTMLComponent(BaseModel):
             return str(self.children[0]) if self.children else ""
 
 
-class TextComponent(HTMLComponent):
+class TextComponent(Component):
     text: str
     tag: str = "span"
 
@@ -107,44 +107,44 @@ class TextComponent(HTMLComponent):
 
 
 # Basic HTML Elements
-class Div(HTMLComponent):
+class Div(Component):
     tag: str = "div"
 
 
-class Span(HTMLComponent):
+class Span(Component):
     tag: str = "span"
 
 
-class P(HTMLComponent):
+class P(Component):
     tag: str = "p"
 
 
-class H1(HTMLComponent):
+class H1(Component):
     tag: str = "h1"
 
 
-class H2(HTMLComponent):
+class H2(Component):
     tag: str = "h2"
 
 
-class H3(HTMLComponent):
+class H3(Component):
     tag: str = "h3"
 
 
-class H4(HTMLComponent):
+class H4(Component):
     tag: str = "h4"
 
 
-class H5(HTMLComponent):
+class H5(Component):
     tag: str = "h5"
 
 
-class H6(HTMLComponent):
+class H6(Component):
     tag: str = "h6"
 
 
 # Interactive Elements
-class A(HTMLComponent):
+class A(Component):
     href: str | None = None
     target: str | None = None
     rel: str | None = None
@@ -170,7 +170,7 @@ class A(HTMLComponent):
         return f"<{rendered.tag}{attrs_str}>{children_html}</{rendered.tag}>"
 
 
-class Button(HTMLComponent):
+class Button(Component):
     type: str | None = None
     disabled: bool | None = None
     tag: str = "button"
@@ -194,7 +194,7 @@ class Button(HTMLComponent):
 
 
 # Form Elements
-class Input(HTMLComponent):
+class Input(Component):
     type: str | None = None
     name: str | None = None
     value: str | None = None
@@ -228,7 +228,7 @@ class Input(HTMLComponent):
         return f"<{rendered.tag}{attrs_str} />"
 
 
-class Form(HTMLComponent):
+class Form(Component):
     action: str | None = None
     method: str | None = None
     tag: str = "form"
@@ -251,7 +251,7 @@ class Form(HTMLComponent):
         return f"<{rendered.tag}{attrs_str}>{children_html}</{rendered.tag}>"
 
 
-class Label(HTMLComponent):
+class Label(Component):
     for_: str | None = Field(None, alias="for")
     tag: str = "label"
 
@@ -272,45 +272,45 @@ class Label(HTMLComponent):
 
 
 # List Elements
-class Ul(HTMLComponent):
+class Ul(Component):
     tag: str = "ul"
 
 
-class Ol(HTMLComponent):
+class Ol(Component):
     tag: str = "ol"
 
 
-class Li(HTMLComponent):
+class Li(Component):
     tag: str = "li"
 
 
 # Table Elements
-class Table(HTMLComponent):
+class Table(Component):
     tag: str = "table"
 
 
-class Thead(HTMLComponent):
+class Thead(Component):
     tag: str = "thead"
 
 
-class Tbody(HTMLComponent):
+class Tbody(Component):
     tag: str = "tbody"
 
 
-class Tr(HTMLComponent):
+class Tr(Component):
     tag: str = "tr"
 
 
-class Th(HTMLComponent):
+class Th(Component):
     tag: str = "th"
 
 
-class Td(HTMLComponent):
+class Td(Component):
     tag: str = "td"
 
 
 # Media Elements
-class Img(HTMLComponent):
+class Img(Component):
     src: str | None = None
     alt: str | None = None
     width: str | None = None
@@ -339,15 +339,15 @@ class Img(HTMLComponent):
 
 
 # Document Structure
-class Head(HTMLComponent):
+class Head(Component):
     tag: str = "head"
 
 
-class Body(HTMLComponent):
+class Body(Component):
     tag: str = "body"
 
 
-class Meta(HTMLComponent):
+class Meta(Component):
     name: str | None = None
     content: str | None = None
     charset: str | None = None
@@ -368,7 +368,7 @@ class Meta(HTMLComponent):
         return f"<meta{attrs_str} />"
 
 
-class Title(HTMLComponent):
+class Title(Component):
     tag: str = "title"
 
     def render_html(self):
@@ -376,7 +376,7 @@ class Title(HTMLComponent):
         return f"<title>{children_html}</title>"
 
 
-class Link(HTMLComponent):
+class Link(Component):
     href: str | None = None
     rel: str | None = None
     type: str | None = None
@@ -394,14 +394,14 @@ class Link(HTMLComponent):
         return f"<link{attrs_str} />"
 
 
-class RawHTML(HTMLComponent):
+class RawHTML(Component):
     html: str
 
     def render_html(self):
         return self.html
 
 
-class HTML(HTMLComponent):
+class HTML(Component):
     lang: str = "en"
     tag: str = "html"
 
