@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
 
-from html_components import (
+from colgandev.html.html_components import (
     H1,
     H2,
     HTML,

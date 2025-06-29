@@ -18,7 +18,7 @@ HOME_FILES := "bashrc gitconfig"
 sync_dotfiles:
     #!/bin/bash
 
-    DOTFILES_DIR="{{invocation_directory()}}"
+    DOTFILES_DIR="{{invocation_directory()}}/dotfiles"
 
     cd "$HOME"
 
@@ -49,7 +49,7 @@ test:
 
 
 serve:
-    uvicorn main:app --host 0.0.0.0 --port 5555 --reload
+    uvicorn colgandev.api:app --host 0.0.0.0 --port 5555 --reload
 
 upgrade:
    #!/bin/bash
