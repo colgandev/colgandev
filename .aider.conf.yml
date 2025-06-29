@@ -2,22 +2,20 @@ cache-prompts: true
 dark-mode: true
 pretty: true
 code-theme: monokai
-#auto-commits: false
+auto-commits: false
 watch-files: true
 
-#lint-cmd: just lint
-#auto-lint: true
+lint-cmd: just lint
+auto-lint: true
 
-#test-cmd: just test
-#auto-test: true
+test-cmd: just test
+auto-test: true
 
 read:
   - CONVENTIONS.md
   - README.md
 
 file:
-  - main.py
-  - html_components.py
   - justfile
   - pyproject.toml
 

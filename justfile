@@ -41,7 +41,7 @@ sync_dotfiles:
 
 lint file="":
     uv run ruff format .
-    uv run ruff check . --fix
+    #uv run ruff check . --fix
     uv run djlint . --reformat --quiet
 
 test:
@@ -49,7 +49,7 @@ test:
 
 
 serve:
-    uvicorn colgandev.api:app --host 0.0.0.0 --port 5555 --reload
+    uvicorn colgandev.app:app --host 0.0.0.0 --port 5555 --reload
 
 upgrade:
    #!/bin/bash

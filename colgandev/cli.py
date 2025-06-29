@@ -20,7 +20,7 @@ def serve(host, port):
     import uvicorn
 
     uvicorn.run(
-        app="colgandev.api:app",
+        app="colgandev.app:app",
         host=host,
         port=port,
         loop="uvloop",
